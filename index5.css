@@ -1,0 +1,154 @@
+      body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+
+        /* 1. Animated Background Mesh Gradient */
+        .animated-bg {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #2e1065, #0284c7, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientWave 16s ease infinite;
+        }
+
+        @keyframes gradientWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ambient Glowing Orbs */
+        .orb-1 {
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(50px);
+        }
+
+        .orb-2 {
+            position: absolute;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(0,0,0,0) 70%);
+            bottom: -120px;
+            right: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(60px);
+        }
+
+        /* 2. Glassmorphism Main Card */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 35px rgba(99, 102, 241, 0.2);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.55);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* 3. Glowing Focus Effect for Input */
+        .input-glow-wrapper {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-glow-wrapper:hover {
+            border-color: rgba(129, 140, 248, 0.5);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .input-glow-wrapper:focus-within {
+            border-color: rgba(99, 102, 241, 0.8) !important;
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.45), inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+            transform: translateY(-1px);
+        }
+
+        /* 4. Button Shimmer Sweep Effect */
+        .btn-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                60deg,
+                transparent,
+                rgba(255, 255, 255, 0.35),
+                transparent
+            );
+            transform: rotate(30deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-shimmer:hover::after {
+            transform: rotate(30deg) translateX(100%);
+        }
+
+        /* Task Item Hover Lift */
+        .task-card-hover {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
+        }
+
+        .task-card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.35);
+        }
+
+        /* 5. Checkbox Bounce & Scale Animation */
+        @keyframes checkBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+
+        .check-bounce {
+            animation: checkBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* 6. Animations for Item Entrance and Exit */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0) scale(1); max-height: 80px; }
+            to { opacity: 0; transform: translateX(50px) scale(0.9); max-height: 0; margin: 0; padding: 0; border-width: 0; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .animate-slide-out {
+            animation: slideOut 0.3s ease-in forwards;
+            overflow: hidden;
+        }
+
+        /* Custom Scrollbar for Task List */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.25);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.45);
+        }

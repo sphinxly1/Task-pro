@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive To-Do List</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+   
+    <link rel="stylesheet" href="index5.css">
+</head>
+<body class="animated-bg min-h-screen text-slate-100 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-x-hidden">
+
+    <!-- Ambient Floating Orbs -->
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
+
+    <!-- Main Container -->
+    <div class="w-full max-w-xl glass-card rounded-3xl overflow-hidden flex flex-col max-h-[90vh] relative z-10">
+        
+        <!-- App Header -->
+        <div class="p-6 sm:p-8 bg-gradient-to-r from-indigo-600/25 via-purple-600/25 to-violet-600/25 border-b border-slate-700/50 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+                        <span class="p-2.5 bg-gradient-to-tr from-indigo-500 to-violet-500 rounded-2xl shadow-lg shadow-indigo-500/35 text-white">
+                            <i class="fa-solid fa-list-check"></i>
+                        </span>
+                        TaskMaster Pro
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Organize your day with elegance and speed</p>
+                </div>
+                <!-- Date badge -->
+                <div id="current-date" class="hidden sm:flex flex-col items-end text-xs text-slate-400 glass-panel px-3 py-2 rounded-xl border border-slate-700/50">
+                    <span class="font-semibold text-slate-200" id="date-day">Thursday</span>
+                    <span id="date-full">Oct 22, 2026</span>
+                </div>
+            </div>
+
+            <!-- Task Input Form -->
+            <form id="task-form" class="flex gap-2 mt-2">
+                <div class="relative flex-1 input-glow-wrapper rounded-2xl border border-slate-700/80 bg-slate-800/80">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-plus"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="task-input" 
+                        placeholder="What needs to be done today?" 
+                        class="w-full pl-11 pr-4 py-3.5 bg-transparent border-none rounded-2xl text-slate-100 placeholder-slate-400 focus:outline-none transition text-sm sm:text-base shadow-inner"
+                        autocomplete="off"
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="btn-shimmer px-5 sm:px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-600/30 hover:from-indigo-400 hover:to-violet-500 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap cursor-pointer shrink-0"
+                >
+                    <span>Add</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Filter & Statistics Bar -->
+        <div class="px-6 py-4 bg-slate-900/40 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+            <!-- Filter Tabs -->
+            <div class="flex items-center glass-panel p-1 rounded-xl border border-slate-700/60 w-full sm:w-auto justify-center">
+                <button data-filter="all" class="filter-btn px-4 py-1.5 rounded-lg font-medium text-xs sm:text-sm transition bg-indigo-600 text-white shadow cursor-pointer">All</button>
+                <button data-filter="active" class="filter-btn px-4 py-1.5 rounded-lg font-medium text-xs sm:text-sm text-slate-400 hover:text-slate-200 transition cursor-pointer">Active</button>
+                <button data-filter="completed" class="filter-btn px-4 py-1.5 rounded-lg font-medium text-xs sm:text-sm text-slate-400 hover:text-slate-200 transition cursor-pointer">Completed</button>
+            </div>
+
+            <!-- Task Counters -->
+            <div class="flex items-center gap-3 text-xs sm:text-sm text-slate-400 font-medium">
+                <span class="glass-panel px-2.5 py-1 rounded-lg">Total: <strong id="count-total" class="text-white">0</strong></span>
+                <span class="glass-panel px-2.5 py-1 rounded-lg">Active: <strong id="count-active" class="text-indigo-400">0</strong></span>
+                <span class="glass-panel px-2.5 py-1 rounded-lg">Done: <strong id="count-completed" class="text-emerald-400">0</strong></span>
+            </div>
+        </div>
+
+        <!-- Task List Container -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-3 min-h-[260px] max-h-[380px]" id="task-list-container">
+            <!-- Tasks will be injected here dynamically -->
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-4 sm:px-6 sm:py-4 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm">
+            <button 
+                id="clear-completed-btn" 
+                class="text-slate-400 hover:text-rose-400 font-medium transition flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-rose-500/10 disabled:opacity-40 disabled:hover:text-slate-400 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
+                disabled
+            >
+                <i class="fa-regular fa-trash-can"></i>
+                <span>Clear completed</span>
+            </button>
+
+            <span class="text-slate-500 font-medium" id="task-status-text">No tasks yet</span>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 glass-card border border-indigo-500/30 text-slate-100 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message">Action successful</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        let tasks = JSON.parse(localStorage.getItem('taskmaster_tasks')) || [];
+        let currentFilter = 'all';
+
+        // DOM Elements
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const taskListContainer = document.getElementById('task-list-container');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const countTotal = document.getElementById('count-total');
+        const countActive = document.getElementById('count-active');
+        const countCompleted = document.getElementById('count-completed');
+        const clearCompletedBtn = document.getElementById('clear-completed-btn');
+        const taskStatusText = document.getElementById('task-status-text');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+
+        // Set Date
+        const updateDate = () => {
+            const now = new Date();
+            const optionsDay = { weekday: 'long' };
+            const optionsFull = { month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('date-day').textContent = now.toLocaleDateString('en-US', optionsDay);
+            document.getElementById('date-full').textContent = now.toLocaleDateString('en-US', optionsFull);
+        };
+        updateDate();
+
+        // Show Toast Notification
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            if(type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            } else if(type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-lg";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-indigo-400 text-lg";
+            }
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Save Tasks to LocalStorage
+        function saveTasks() {
+            localStorage.setItem('taskmaster_tasks', JSON.stringify(tasks));
+        }
+
+        // Add Task Handler
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = taskInput.value.trim();
+
+            if (!text) {
+                showToast('Please enter a valid task!', 'error');
+                taskInput.focus();
+                return;
+            }
+
+            const newTask = {
+                id: Date.now().toString(),
+                text: text,
+                completed: false,
+                createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            tasks.unshift(newTask);
+            saveTasks();
+            renderTasks();
+            taskInput.value = '';
+            taskInput.focus();
+            showToast('Task added successfully!');
+        });
+
+        // Toggle Task Completion Status
+        function toggleTask(id) {
+            let newlyCompleted = false;
+            tasks = tasks.map(task => {
+                if (task.id === id) {
+                    const willComplete = !task.completed;
+                    if (willComplete) newlyCompleted = true;
+                    return { ...task, completed: willComplete };
+                }
+                return task;
+            });
+
+            if (newlyCompleted && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 70,
+                    spread: 60,
+                    origin: { y: 0.7 },
+                    colors: ['#6366f1', '#a855f7', '#10b981', '#3b82f6', '#f43f5e']
+                });
+            }
+
+            saveTasks();
+            renderTasks();
+        }
+
+        // Delete Task with Animation
+        function deleteTask(id, element) {
+            element.classList.add('animate-slide-out');
+            setTimeout(() => {
+                tasks = tasks.filter(task => task.id !== id);
+                saveTasks();
+                renderTasks();
+                showToast('Task removed', 'info');
+            }, 280);
+        }
+
+        // Clear Completed Tasks
+        clearCompletedBtn.addEventListener('click', () => {
+            const completedCount = tasks.filter(t => t.completed).length;
+            if (completedCount === 0) return;
+
+            tasks = tasks.filter(task => !task.completed);
+            saveTasks();
+            renderTasks();
+            showToast(`Cleared ${completedCount} completed task${completedCount > 1 ? 's' : ''}`);
+        });
+
+        // Filter Buttons Event Listeners
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+                    b.classList.add('text-slate-400');
+                });
+                btn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+                btn.classList.remove('text-slate-400');
+
+                currentFilter = btn.getAttribute('data-filter');
+                renderTasks();
+            });
+        });
+
+        // Render Tasks & Update UI
+        function renderTasks() {
+            // Filter tasks
+            let filteredTasks = tasks;
+            if (currentFilter === 'active') {
+                filteredTasks = tasks.filter(t => !t.completed);
+            } else if (currentFilter === 'completed') {
+                filteredTasks = tasks.filter(t => t.completed);
+            }
+
+            // Update Counters
+            const totalCount = tasks.length;
+            const activeCount = tasks.filter(t => !t.completed).length;
+            const completedCount = tasks.filter(t => t.completed).length;
+
+            countTotal.textContent = totalCount;
+            countActive.textContent = activeCount;
+            countCompleted.textContent = completedCount;
+
+            clearCompletedBtn.disabled = completedCount === 0;
+
+            // Status message
+            if (totalCount === 0) {
+                taskStatusText.textContent = "No tasks yet";
+            } else {
+                taskStatusText.textContent = `${activeCount} task${activeCount === 1 ? '' : 's'} remaining`;
+            }
+
+            // Render List HTML
+            if (filteredTasks.length === 0) {
+                let emptyMessage = "No tasks found";
+                let emptySub = "Add a new task above to get started!";
+                if (currentFilter === 'active' && totalCount > 0) {
+                    emptyMessage = "No active tasks!";
+                    emptySub = "All tasks are completed. Great job!";
+                } else if (currentFilter === 'completed' && totalCount > 0) {
+                    emptyMessage = "No completed tasks yet.";
+                    emptySub = "Check off tasks as you finish them.";
+                }
+
+                taskListContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-center animate-fade-in">
+                        <div class="w-16 h-16 glass-panel rounded-2xl flex items-center justify-center text-slate-400 text-2xl mb-4 border border-slate-700/50 shadow-inner">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </div>
+                        <p class="text-slate-300 font-semibold text-base">${emptyMessage}</p>
+                        <p class="text-slate-500 text-xs mt-1 max-w-[220px]">${emptySub}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            taskListContainer.innerHTML = '';
+            filteredTasks.forEach(task => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `group task-card-hover flex items-center justify-between p-4 glass-panel hover:bg-slate-800/80 border border-slate-700/50 hover:border-slate-600 rounded-2xl transition-all duration-200 shadow-sm animate-fade-in ${task.completed ? 'opacity-70 bg-slate-900/30' : ''}`;
+                itemDiv.setAttribute('data-id', task.id);
+
+                itemDiv.innerHTML = `
+                    <div class="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer" onclick="toggleTask('${task.id}')">
+                        <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 shrink-0 ${task.completed ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 border-emerald-400 text-white shadow-md shadow-emerald-500/20' : 'border-slate-500/70 bg-slate-800 group-hover:border-indigo-400'}">
+                            <i class="fa-solid fa-check text-xs ${task.completed ? 'check-bounce opacity-100' : 'opacity-0'}"></i>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-sm sm:text-base font-medium truncate transition-all duration-200 ${task.completed ? 'line-through text-slate-400' : 'text-slate-100'}">${escapeHtml(task.text)}</span>
+                            <span class="text-[10px] text-slate-500">${task.createdAt}</span>
+                        </div>
+                    </div>
+                    <button 
+                        onclick="deleteTask('${task.id}', this.closest('div[data-id]'))" 
+                        class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all duration-200 shrink-0 ml-2 cursor-pointer"
+                        title="Delete Task"
+                    >
+                        <i class="fa-regular fa-trash-can text-sm"></i>
+                    </button>
+                `;
+                taskListContainer.appendChild(itemDiv);
+            });
+        }
+
+        // Helper to prevent XSS
+        function escapeHtml(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // Initial Render on Load
+        renderTasks();
+    </script>
+</body>
+</html>
